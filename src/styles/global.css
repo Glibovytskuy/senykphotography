@@ -1,0 +1,69 @@
+@import '@fontsource-variable/bodoni-moda';
+@import '@fontsource-variable/jost';
+
+:root {
+  --paper: #ffffff;
+  --ink: #000000;          /* логотип і заголовки */
+  --text: #3a3a3a;         /* основний текст */
+  --muted: #7a7f83;        /* другорядний текст */
+  --zinc: #5e6b73;         /* акцент: паризькі цинкові дахи */
+  --hairline: #e6e6e6;
+
+  --serif: 'Bodoni Moda Variable', 'Didot', 'Bodoni 72', Georgia, serif;
+  --sans: 'Jost Variable', 'Futura', 'Century Gothic', system-ui, sans-serif;
+
+  --measure: 38rem;
+  --gutter: clamp(1rem, 4vw, 3rem);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--text);
+  font-family: var(--sans);
+  font-weight: 350;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+img { display: block; max-width: 100%; height: auto; }
+
+a { color: inherit; }
+
+h1, h2, h3 {
+  font-family: var(--serif);
+  color: var(--ink);
+  font-weight: 400;
+  line-height: 1.15;
+  margin: 0;
+}
+
+:focus-visible { outline: 2px solid var(--zinc); outline-offset: 3px; }
+
+.skip-link {
+  position: absolute; left: 1rem; top: -3rem;
+  background: var(--ink); color: var(--paper);
+  padding: .5rem 1rem; z-index: 10; text-decoration: none;
+}
+.skip-link:focus { top: 1rem; }
+
+.button {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: .95rem;
+  letter-spacing: .06em;
+  padding: .9rem 2.2rem;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  text-decoration: none;
+  transition: background-color .2s, color .2s;
+}
+.button:hover { background: var(--ink); color: var(--paper); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

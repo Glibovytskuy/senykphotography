@@ -1,0 +1,122 @@
+---
+import { Image, Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import hero from '../assets/hero.jpg';
+import { homeGallery } from '../data/homeGallery';
+import { t, routes, alternatesFor, type Lang } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const copy = {
+  fr: {
+    title: 'Photographe de mariage à Paris | Senyk Photography',
+    description: 'Photographe de mariage à Paris et en Île-de-France. Reportages élégants et naturels dans les châteaux, hôtels et lieux emblématiques de la capitale.',
+    h1: 'Photographe de mariage à Paris',
+    heroAlt: 'Mariés devant un château près de Paris',
+    intro: [
+      'Je photographie les mariages à Paris, en Île-de-France et partout en France : cérémonies dans les châteaux, réceptions dans les hôtels particuliers, séances au lever du soleil sur les quais de Seine.',
+      'Mon approche mêle portraits soignés et reportage discret, pour que vos images racontent la journée telle que vous l’avez vécue.',
+    ],
+  },
+  en: {
+    title: 'Paris Wedding Photographer | Senyk Photography',
+    description: 'Wedding photographer based in Paris, France. Elegant, natural wedding and elopement photography at châteaux, hotels and iconic Paris locations.',
+    h1: 'Wedding photographer in Paris',
+    heroAlt: 'Bride and groom in front of a château near Paris',
+    intro: [
+      'I photograph weddings and elopements in Paris, across Île-de-France and throughout France: château ceremonies, receptions in private mansions, sunrise portraits along the Seine.',
+      'My approach combines refined portraits with quiet documentary coverage, so your photos tell the day the way you lived it.',
+    ],
+  },
+}[lang];
+
+const files = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/home/*.{jpg,jpeg,png,webp}',
+  { eager: true },
+);
+const gallery = homeGallery
+  .map((item) => ({ ...item, src: files[`../assets/home/${item.file}`]?.default }))
+  .filter((item) => item.src);
+---
+<BaseLayout
+  lang={lang}
+  title={copy.title}
+  description={copy.description}
+  alternates={alternatesFor('home')}
+  ogImage={hero.src}
+  businessSchema
+>
+  <div class="hero">
+    <Picture
+      src={hero}
+      alt={copy.heroAlt}
+      formats={['avif', 'webp']}
+      widths={[800, 1400, 2000, 2400]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+    />
+  </div>
+
+  <section class="intro">
+    <h1>{copy.h1}</h1>
+    {copy.intro.map((p) => <p>{p}</p>)}
+  </section>
+
+  <section class="gallery" aria-label="Portfolio">
+    {gallery.map((item) => (
+      <Picture
+        src={item.src!}
+        alt={item.alt[lang]}
+        formats={['avif', 'webp']}
+        widths={[400, 700, 1000]}
+        sizes="(max-width: 640px) 50vw, (max-width: 1100px) 33vw, 20vw"
+      />
+    ))}
+  </section>
+
+  <div class="cta">
+    <a class="button" href={routes.contact[lang]}>{t(lang, 'cta.contact')}</a>
+  </div>
+</BaseLayout>
+
+<style>
+  .hero { padding: clamp(.5rem, 1.2vw, 1rem); }
+  .hero :global(img) {
+    width: 100%;
+    height: min(82vh, 56vw);
+    min-height: 22rem;
+    object-fit: cover;
+  }
+
+  .intro {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: clamp(3rem, 8vw, 6rem) var(--gutter) clamp(2.5rem, 6vw, 4.5rem);
+    text-align: center;
+  }
+  .intro h1 {
+    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    margin-bottom: 1.75rem;
+  }
+  .intro p { margin: 0 0 1rem; line-height: 1.8; }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: clamp(.4rem, .8vw, .75rem);
+    max-width: 96rem;
+    margin: 0 auto;
+    padding: 0 clamp(.5rem, 4vw, 6rem);
+  }
+  .gallery :global(img) {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+  }
+  @media (max-width: 1100px) { .gallery { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 640px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
+
+  .cta { text-align: center; padding: clamp(3rem, 7vw, 5rem) var(--gutter); }
+</style>

@@ -1,0 +1,116 @@
+---
+import Icon from './Icon.astro';
+import { SITE } from '../config';
+import { t, routes, languages, type Lang, type RouteKey } from '../i18n/ui';
+
+interface Props { lang: Lang; alternates: Partial<Record<Lang, string>> }
+const { lang, alternates } = Astro.props;
+
+const nav: RouteKey[] = ['home', 'portfolio', 'about', 'contact'];
+const current = Astro.url.pathname;
+const otherLang = (Object.keys(languages) as Lang[]).find((l) => l !== lang)!;
+const switchHref = alternates[otherLang] ?? routes.home[otherLang];
+---
+<header class="site-header">
+  <div class="topbar">
+    <div class="topbar-contacts">
+      <a href={`mailto:${SITE.email}`} aria-label={SITE.email}><Icon name="mail" size={16} /><span>{SITE.email}</span></a>
+      <a href={`tel:${SITE.phoneHref}`} aria-label={SITE.phoneDisplay}><Icon name="phone" size={16} /><span>{SITE.phoneDisplay}</span></a>
+      <a href={`https://wa.me/${SITE.whatsapp}`} aria-label="WhatsApp"><Icon name="whatsapp" size={17} /></a>
+    </div>
+    <a class="lang-switch" href={switchHref} hreflang={otherLang} lang={otherLang}>
+      {otherLang === 'en' ? 'English' : 'Français'}
+    </a>
+  </div>
+
+  <a class="wordmark" href={routes.home[lang]} aria-label={SITE.brand}>
+    <span class="wordmark-name">{SITE.wordmark}</span>
+    <span class="wordmark-tag">{SITE.tagline}</span>
+  </a>
+
+  <nav aria-label="Main">
+    <button class="menu-toggle" aria-expanded="false" aria-controls="menu">{t(lang, 'nav.menu')}</button>
+    <ul id="menu">
+      {nav.map((key) => {
+        const href = routes[key][lang];
+        return (
+          <li>
+            <a href={href} aria-current={current === href ? 'page' : undefined}>
+              {t(lang, `nav.${key}` as any)}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </nav>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('.menu-toggle');
+  btn?.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+  });
+</script>
+
+<style>
+  .site-header { border-bottom: 1px solid var(--hairline); }
+
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 1rem; padding: .6rem var(--gutter);
+    font-size: .85rem; color: var(--muted);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .topbar-contacts { display: flex; gap: 1.5rem; align-items: center; }
+  .topbar a { display: inline-flex; align-items: center; gap: .45rem; text-decoration: none; }
+  .topbar a:hover { color: var(--ink); }
+  .lang-switch { letter-spacing: .04em; }
+
+  .wordmark {
+    display: flex; flex-direction: column; align-items: center;
+    width: fit-content; margin: 0 auto;
+    padding: clamp(1.75rem, 4vw, 2.75rem) 0 clamp(1.25rem, 3vw, 2rem);
+    text-decoration: none; color: var(--ink);
+  }
+  .wordmark-name {
+    font-family: var(--serif);
+    font-size: clamp(2.6rem, 7vw, 4.5rem);
+    font-weight: 450;
+    line-height: .9;
+    letter-spacing: -.01em;
+  }
+  .wordmark-tag {
+    align-self: flex-end;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(.95rem, 1.8vw, 1.15rem);
+    margin-top: .1rem;
+    color: var(--zinc);
+  }
+
+  nav { border-top: 1px solid var(--hairline); }
+  nav ul {
+    list-style: none; margin: 0; padding: 1rem var(--gutter);
+    display: flex; justify-content: center; gap: clamp(1.5rem, 4vw, 3.25rem);
+  }
+  nav a {
+    text-decoration: none; font-size: 1rem; letter-spacing: .05em;
+    color: var(--text); padding-bottom: .2rem;
+    border-bottom: 1px solid transparent;
+  }
+  nav a:hover, nav a[aria-current='page'] { color: var(--ink); border-bottom-color: var(--ink); }
+
+  .menu-toggle { display: none; }
+
+  @media (max-width: 640px) {
+    .topbar-contacts span { display: none; }
+    .menu-toggle {
+      display: block; margin: 0 auto; padding: .9rem 1.5rem;
+      background: none; border: 0; font: inherit; letter-spacing: .05em; color: var(--ink);
+      cursor: pointer;
+    }
+    nav ul { display: none; flex-direction: column; align-items: center; gap: 1rem; padding-top: 0; }
+    .menu-toggle[aria-expanded='true'] + ul { display: flex; }
+  }
+</style>

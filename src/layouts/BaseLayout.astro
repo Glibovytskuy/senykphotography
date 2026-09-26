@@ -1,0 +1,90 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE, INDEXABLE } from '../config';
+import { t, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  /** Шляхи цієї ж сторінки іншими мовами, напр. { fr: '/a-propos/', en: '/en/about/' } */
+  alternates: Partial<Record<Lang, string>>;
+  /** Картинка для соцмереж (абсолютний або відносний URL) */
+  ogImage?: string;
+  /** Додати розмітку Schema.org про бізнес (зазвичай тільки на головній) */
+  businessSchema?: boolean;
+  noindex?: boolean;
+}
+
+const { lang, title, description, alternates, ogImage, businessSchema = false, noindex = false } = Astro.props;
+
+const site = Astro.site!;
+const canonical = new URL(Astro.url.pathname, site).href;
+const abs = (path: string) => new URL(path, site).href;
+const ogImageUrl = ogImage ? abs(ogImage) : undefined;
+const locales: Record<Lang, string> = { fr: 'fr_FR', en: 'en_US' };
+
+const schema = businessSchema && {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  '@id': abs('/#business'),
+  name: SITE.brand,
+  description,
+  url: abs('/'),
+  ...(ogImageUrl && { image: ogImageUrl }),
+  email: SITE.email,
+  telephone: SITE.phoneHref,
+  priceRange: SITE.priceRange,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: SITE.city,
+    addressRegion: SITE.region,
+    addressCountry: SITE.country,
+  },
+  areaServed: [
+    { '@type': 'City', name: 'Paris' },
+    { '@type': 'AdministrativeArea', name: 'Île-de-France' },
+    { '@type': 'Country', name: 'France' },
+  ],
+  sameAs: [SITE.instagram],
+};
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {(!INDEXABLE || noindex) && <meta name="robots" content="noindex, nofollow" />}
+
+    {Object.entries(alternates).map(([l, path]) => (
+      <link rel="alternate" hreflang={l} href={abs(path!)} />
+    ))}
+    {alternates.fr && <link rel="alternate" hreflang="x-default" href={abs(alternates.fr)} />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.brand} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={locales[lang]} />
+    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t(lang, 'skip')}</a>
+    <Header lang={lang} alternates={alternates} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+  </body>
+</html>

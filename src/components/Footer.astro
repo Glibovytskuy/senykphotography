@@ -1,0 +1,36 @@
+---
+import Icon from './Icon.astro';
+import { SITE } from '../config';
+import { t, routes, type Lang } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const year = new Date().getFullYear();
+---
+<footer>
+  <ul class="social">
+    <li><a href={SITE.instagram} aria-label="Instagram" rel="me"><Icon name="instagram" size={24} /></a></li>
+    <li><a href={`https://wa.me/${SITE.whatsapp}`} aria-label="WhatsApp"><Icon name="whatsapp" size={24} /></a></li>
+    <li><a href={`tel:${SITE.phoneHref}`} aria-label={SITE.phoneDisplay}><Icon name="phone" size={22} /></a></li>
+    <li><a href={`mailto:${SITE.email}`} aria-label={SITE.email}><Icon name="mail" size={24} /></a></li>
+  </ul>
+  <div class="legal">
+    <a href={routes.legal[lang]}>{t(lang, 'footer.legal')}</a>
+    <a href={routes.privacy[lang]}>{t(lang, 'footer.privacy')}</a>
+  </div>
+  <p class="copy">© {year} {SITE.brand}</p>
+</footer>
+
+<style>
+  footer {
+    border-top: 1px solid var(--hairline);
+    padding: 2.5rem var(--gutter) 2rem;
+    text-align: center; color: var(--muted); font-size: .9rem;
+  }
+  .social { list-style: none; margin: 0 0 1.75rem; padding: 0; display: flex; justify-content: center; gap: 1.75rem; }
+  .social a { color: var(--text); display: block; }
+  .social a:hover { color: var(--ink); }
+  .legal { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: .5rem; }
+  .legal a { text-decoration: none; }
+  .legal a:hover { color: var(--ink); text-decoration: underline; }
+  .copy { margin: 0; }
+</style>
