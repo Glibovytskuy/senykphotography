@@ -30,24 +30,28 @@
 ## Індексація
 
 Поки змінна `PUBLIC_INDEXABLE` не дорівнює `true`, кожна сторінка має `noindex`.
-На продакшн-домені додайте `PUBLIC_INDEXABLE=true` у налаштуваннях Cloudflare Pages
+На продакшн-домені додайте `PUBLIC_INDEXABLE=true` у Cloudflare (Settings → Build → Variables)
 і змініть `site` в `astro.config.mjs` на справжній домен.
+
+## Деплой (Cloudflare Workers)
+
+Сайт — Cloudflare Worker `senykphotography`, який віддає статичні файли з `dist/`
+(налаштування в `wrangler.jsonc`). Кожен push у `main` збирає й публікує сайт:
+build command `npm run build`, deploy command `npx wrangler deploy`.
 
 ## Форма контактів → Telegram
 
-Форма на `/contact/` надсилає заявку на `/api/contact` (файл `functions/api/contact.ts`,
-Cloudflare Pages Function), а та пересилає її в Telegram через бота.
+Форма на `/contact/` надсилає заявку на `/api/contact`. Її обробляє Worker
+(`worker/index.ts` → `worker/contact.ts`) і пересилає в Telegram через бота.
 
-У Cloudflare Pages → Settings → Variables and Secrets додайте:
+У Cloudflare: Workers & Pages → senykphotography → Settings → Variables and Secrets додайте:
 
 - `TELEGRAM_BOT_TOKEN` — токен бота від @BotFather (тип **Secret**)
 - `TELEGRAM_CHAT_ID` — id чату, куди падатимуть заявки
 
-Після зміни змінних зробіть новий деплой (Deployments → Retry deployment).
-
 Локальна перевірка форми: створіть `.dev.vars` з цими двома змінними, потім
 
     npm run build
-    npx wrangler pages dev dist   # http://localhost:8788
+    npx wrangler dev   # http://localhost:8787
 
-(`npm run dev` форму не надсилає — там немає Cloudflare Functions.)
+(`npm run dev` форму не надсилає — там немає Worker.)

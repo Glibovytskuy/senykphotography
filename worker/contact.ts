@@ -1,18 +1,12 @@
-// Cloudflare Pages Function: приймає заявку з форми й надсилає її в Telegram.
-// Адреса: POST /api/contact
-// Потрібні змінні середовища в Cloudflare Pages (Settings → Variables and Secrets):
+// Приймає заявку з форми (POST /api/contact) і надсилає її в Telegram.
+// Потрібні змінні в Cloudflare (Worker → Settings → Variables and Secrets):
 //   TELEGRAM_BOT_TOKEN — токен бота від @BotFather (тип Secret)
 //   TELEGRAM_CHAT_ID   — id чату, куди надсилати заявки
 // Локально їх можна покласти у файл .dev.vars (він у .gitignore).
 
-interface Env {
+export interface ContactEnv {
   TELEGRAM_BOT_TOKEN?: string;
   TELEGRAM_CHAT_ID?: string;
-}
-
-interface Context {
-  request: Request;
-  env: Env;
 }
 
 const FIELDS = {
@@ -39,7 +33,7 @@ async function readBody(request: Request): Promise<Record<string, string>> {
   return Object.fromEntries([...form.entries()].map(([k, v]) => [k, typeof v === 'string' ? v : '']));
 }
 
-export async function onRequestPost({ request, env }: Context): Promise<Response> {
+export async function handleContact(request: Request, env: ContactEnv): Promise<Response> {
   const wantsJson = (request.headers.get('accept') ?? '').includes('application/json');
   const body = await readBody(request);
   const lang = Object.hasOwn(CONTACT_PAGES, body.lang ?? '') ? body.lang : 'fr';

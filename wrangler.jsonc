@@ -1,0 +1,13 @@
+// Налаштування Cloudflare Worker, який віддає сайт.
+// Збірка в Cloudflare: build command `npm run build`, deploy command `npx wrangler deploy`.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "senykphotography",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "observability": { "enabled": true }
+}
