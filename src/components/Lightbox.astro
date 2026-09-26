@@ -1,0 +1,96 @@
+---
+// Повноекранний перегляд для посилань з атрибутом data-lightbox.
+// Без JavaScript посилання просто відкривають велике фото.
+import { t, type Lang } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+---
+<dialog class="lightbox" aria-label="Photo">
+  <img alt="" />
+  <button class="close" type="button" aria-label={t(lang, 'lightbox.close')}>×</button>
+  <button class="prev" type="button" aria-label={t(lang, 'lightbox.prev')}>‹</button>
+  <button class="next" type="button" aria-label={t(lang, 'lightbox.next')}>›</button>
+  <p class="counter" aria-live="polite"></p>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('dialog.lightbox')!;
+  const img = dialog.querySelector('img')!;
+  const counter = dialog.querySelector('.counter')!;
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('a[data-lightbox]')];
+  let current = 0;
+
+  function show(i: number) {
+    current = (i + links.length) % links.length;
+    const link = links[current];
+    img.src = link.href;
+    img.alt = link.dataset.alt ?? '';
+    counter.textContent = `${current + 1} / ${links.length}`;
+    // Підвантажити сусіднє фото заздалегідь
+    new Image().src = links[(current + 1) % links.length].href;
+  }
+
+  links.forEach((link, i) =>
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      show(i);
+      dialog.showModal();
+    }),
+  );
+
+  dialog.querySelector('.close')!.addEventListener('click', () => dialog.close());
+  dialog.querySelector('.prev')!.addEventListener('click', () => show(current - 1));
+  dialog.querySelector('.next')!.addEventListener('click', () => show(current + 1));
+  // Клік по темному фону закриває
+  dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+  dialog.addEventListener('close', () => links[current]?.focus());
+
+  dialog.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') show(current - 1);
+    if (e.key === 'ArrowRight') show(current + 1);
+  });
+
+  // Свайп на телефоні
+  let startX = 0;
+  dialog.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+  dialog.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 50) show(current + (dx < 0 ? 1 : -1));
+  });
+</script>
+
+<style>
+  .lightbox {
+    width: 100vw; height: 100dvh;
+    max-width: none; max-height: none;
+    margin: 0; padding: 0; border: 0;
+    background: rgba(12, 12, 12, .96);
+    color: #fff;
+  }
+  .lightbox[open] { display: grid; place-items: center; }
+  .lightbox::backdrop { background: transparent; }
+  .lightbox img {
+    max-width: calc(100vw - 8rem);
+    max-height: calc(100dvh - 5rem);
+    width: auto; height: auto;
+    object-fit: contain;
+  }
+  .lightbox button {
+    position: absolute;
+    background: none; border: 0; color: #fff;
+    font: 300 2.75rem/1 var(--sans);
+    padding: .75rem 1rem; cursor: pointer; opacity: .75;
+  }
+  .lightbox button:hover { opacity: 1; }
+  .close { top: .5rem; right: .75rem; }
+  .prev { left: .5rem; top: 50%; translate: 0 -50%; }
+  .next { right: .5rem; top: 50%; translate: 0 -50%; }
+  .counter {
+    position: absolute; bottom: 1rem; left: 0; right: 0; margin: 0;
+    text-align: center; font-size: .85rem; letter-spacing: .1em; opacity: .7;
+  }
+  @media (max-width: 640px) {
+    .lightbox img { max-width: 100vw; max-height: calc(100dvh - 7rem); }
+    .prev, .next { top: auto; bottom: .25rem; translate: none; }
+  }
+</style>

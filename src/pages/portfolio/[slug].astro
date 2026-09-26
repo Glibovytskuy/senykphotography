@@ -1,0 +1,10 @@
+---
+import WeddingPage from '../../components/WeddingPage.astro';
+import { allWeddings, type LoadedWedding } from '../../lib/weddings';
+
+export function getStaticPaths() {
+  return allWeddings.map((wedding) => ({ params: { slug: wedding.slug }, props: { wedding } }));
+}
+const { wedding } = Astro.props as { wedding: LoadedWedding };
+---
+<WeddingPage lang="fr" wedding={wedding} />

@@ -15,10 +15,12 @@ interface Props {
   ogImage?: string;
   /** Додати розмітку Schema.org про бізнес (зазвичай тільки на головній) */
   businessSchema?: boolean;
+  /** Додаткова розмітка Schema.org для цієї сторінки */
+  schema?: Record<string, unknown>;
   noindex?: boolean;
 }
 
-const { lang, title, description, alternates, ogImage, businessSchema = false, noindex = false } = Astro.props;
+const { lang, title, description, alternates, ogImage, businessSchema = false, schema: pageSchema, noindex = false } = Astro.props;
 
 const site = Astro.site!;
 const canonical = new URL(Astro.url.pathname, site).href;
@@ -78,6 +80,7 @@ const schema = businessSchema && {
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+    {pageSchema && <script type="application/ld+json" set:html={JSON.stringify(pageSchema)} />}
   </head>
   <body>
     <a class="skip-link" href="#main">{t(lang, 'skip')}</a>

@@ -1,0 +1,118 @@
+---
+import { Picture, getImage } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Lightbox from './Lightbox.astro';
+import { allWeddings, weddingPath, formatDate, type LoadedWedding } from '../lib/weddings';
+import { t, routes, type Lang } from '../i18n/ui';
+
+interface Props { lang: Lang; wedding: LoadedWedding }
+const { lang, wedding: w } = Astro.props;
+
+const suffix = { fr: 'Photographe de mariage Paris', en: 'Paris Wedding Photographer' }[lang];
+const title = `${w.title[lang]} | ${suffix}`;
+const firstParagraph = w.story[lang][0] ?? w.title[lang];
+const description = firstParagraph.length <= 160
+  ? firstParagraph
+  : firstParagraph.slice(0, 155).replace(/\s+\S*$/, '') + '…';
+
+// Велика версія кожного фото для повноекранного перегляду
+const photos = await Promise.all(
+  w.photos.map(async (p) => ({
+    ...p,
+    full: await getImage({ src: p.src, width: Math.min(2000, p.src.width), format: 'webp' }),
+  })),
+);
+const og = await getImage({ src: w.coverPhoto.src, width: 1200, format: 'jpg' });
+
+const index = allWeddings.findIndex((x) => x.slug === w.slug);
+const next = allWeddings.length > 1 ? allWeddings[(index + 1) % allWeddings.length] : undefined;
+
+const site = Astro.site!;
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: t(lang, 'nav.home'), item: new URL(routes.home[lang], site).href },
+    { '@type': 'ListItem', position: 2, name: t(lang, 'nav.portfolio'), item: new URL(routes.portfolio[lang], site).href },
+    { '@type': 'ListItem', position: 3, name: w.title[lang], item: new URL(weddingPath(lang, w.slug), site).href },
+  ],
+};
+---
+<BaseLayout
+  lang={lang}
+  title={title}
+  description={description}
+  alternates={{ fr: weddingPath('fr', w.slug), en: weddingPath('en', w.slug) }}
+  ogImage={og.src}
+  schema={schema}
+>
+  <article>
+    <header class="intro">
+      <p class="meta">{w.location[lang]} · {formatDate(lang, w.date)}</p>
+      <h1>{w.title[lang]}</h1>
+      {w.story[lang].map((p) => <p>{p}</p>)}
+    </header>
+
+    <div class="photos">
+      {photos.map((p, i) => (
+        <a href={p.full.src} data-lightbox data-alt={p.alt[lang]}>
+          <Picture
+            src={p.src}
+            alt={p.alt[lang]}
+            formats={['avif', 'webp']}
+            widths={[500, 800, 1200]}
+            sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw"
+            loading={i < 3 ? 'eager' : 'lazy'}
+          />
+        </a>
+      ))}
+    </div>
+  </article>
+
+  <nav class="more" aria-label={t(lang, 'nav.portfolio')}>
+    <a href={routes.portfolio[lang]}>← {t(lang, 'portfolio.back')}</a>
+    {next && <a href={weddingPath(lang, next.slug)}>{next.title[lang]} →</a>}
+  </nav>
+
+  <div class="cta">
+    <a class="button" href={routes.contact[lang]}>{t(lang, 'cta.contact')}</a>
+  </div>
+
+  <Lightbox lang={lang} />
+</BaseLayout>
+
+<style>
+  .intro {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: clamp(3rem, 8vw, 5rem) var(--gutter) clamp(2rem, 5vw, 3.5rem);
+    text-align: center;
+  }
+  .meta { margin: 0 0 1rem; color: var(--muted); font-size: .9rem; letter-spacing: .08em; text-transform: uppercase; }
+  .intro h1 { font-size: clamp(2rem, 4.5vw, 3.25rem); margin-bottom: 1.75rem; }
+  .intro p:not(.meta) { margin: 0 0 1rem; line-height: 1.8; }
+
+  /* Колонки замість сітки: портретні та горизонтальні фото без обрізання */
+  .photos {
+    columns: 3;
+    column-gap: clamp(.5rem, 1vw, 1rem);
+    max-width: 90rem;
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+  .photos a { display: block; margin-bottom: clamp(.5rem, 1vw, 1rem); break-inside: avoid; cursor: zoom-in; }
+  .photos :global(img) { width: 100%; }
+  @media (max-width: 1100px) { .photos { columns: 2; } }
+  @media (max-width: 640px) { .photos { columns: 1; } }
+
+  .more {
+    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    max-width: 90rem; margin: 0 auto;
+    padding: clamp(2rem, 5vw, 3rem) var(--gutter) 0;
+    letter-spacing: .04em;
+  }
+  .more a { text-decoration: none; }
+  .more a:hover { color: var(--ink); text-decoration: underline; }
+
+  .cta { text-align: center; padding: clamp(3rem, 7vw, 5rem) var(--gutter); }
+</style>

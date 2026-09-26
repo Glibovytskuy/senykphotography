@@ -24,6 +24,10 @@ export const ui = {
     'footer.privacy': 'Confidentialité',
     'cta.contact': 'Parlons de votre mariage',
     'skip': 'Aller au contenu',
+    'portfolio.back': 'Tous les mariages',
+    'lightbox.close': 'Fermer',
+    'lightbox.prev': 'Photo précédente',
+    'lightbox.next': 'Photo suivante',
   },
   en: {
     'nav.home': 'Home',
@@ -35,6 +39,10 @@ export const ui = {
     'footer.privacy': 'Privacy',
     'cta.contact': 'Tell me about your wedding',
     'skip': 'Skip to content',
+    'portfolio.back': 'All weddings',
+    'lightbox.close': 'Close',
+    'lightbox.prev': 'Previous photo',
+    'lightbox.next': 'Next photo',
   },
 } as const;
 

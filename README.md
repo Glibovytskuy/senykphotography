@@ -14,7 +14,15 @@
 
 - `src/config.ts` — назва бренду, email, телефон, WhatsApp, Instagram
 - `src/assets/hero.jpg` — головне фото
-- `src/assets/home/` + `src/data/homeGallery.ts` — фото на головній та їхні alt-тексти
+- `src/content/weddings/<назва>/` — фото весілля; назва папки = адреса сторінки `/portfolio/<назва>/`
+- `src/data/weddings.ts` — назва, локація, дата, історія, обкладинка, порядок і alt-тексти фото кожного весілля
+- `src/data/homeGallery.ts` — які фото з весіль показати на головній
+
+### Як додати нове весілля
+
+1. Створіть папку `src/content/weddings/mariage-<локація>/` і покладіть туди JPG (sRGB, довга сторона ~2500 px).
+2. Додайте запис у `src/data/weddings.ts` з тим самим `slug`, що й назва папки.
+   Фото, не перелічені в `photos`, теж з'являться — в кінці галереї.
 - `src/components/HomePage.astro` — тексти головної (FR/EN), title і description
 - `src/i18n/ui.ts` — підписи меню та URL сторінок для кожної мови
 - `src/styles/global.css` — кольори та шрифти

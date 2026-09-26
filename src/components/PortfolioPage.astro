@@ -1,0 +1,96 @@
+---
+import { Picture, getImage } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { allWeddings, weddingPath, formatDate } from '../lib/weddings';
+import { t, routes, alternatesFor, type Lang } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const copy = {
+  fr: {
+    title: 'Portfolio – Mariages à Paris et en France | Senyk Photography',
+    description: 'Reportages de mariage à Paris, dans les châteaux d’Île-de-France et à l’étranger. Découvrez les histoires de couples photographiés par Senyk Photography.',
+    h1: 'Portfolio',
+    intro: 'Chaque mariage raconte une histoire différente. Voici quelques-unes de celles que j’ai eu la chance de photographier, à Paris et ailleurs.',
+  },
+  en: {
+    title: 'Portfolio – Weddings in Paris and France | Senyk Photography',
+    description: 'Wedding stories from Paris, châteaux around Île-de-France and destinations abroad, photographed by Senyk Photography.',
+    h1: 'Portfolio',
+    intro: 'Every wedding tells a different story. Here are some of the ones I have been lucky enough to photograph, in Paris and beyond.',
+  },
+}[lang];
+
+const og = allWeddings[0] && (await getImage({ src: allWeddings[0].coverPhoto.src, width: 1200, format: 'jpg' }));
+---
+<BaseLayout
+  lang={lang}
+  title={copy.title}
+  description={copy.description}
+  alternates={alternatesFor('portfolio')}
+  ogImage={og?.src}
+>
+  <section class="intro">
+    <h1>{copy.h1}</h1>
+    <p>{copy.intro}</p>
+  </section>
+
+  <ul class="weddings">
+    {allWeddings.map((w, i) => (
+      <li>
+        <a href={weddingPath(lang, w.slug)}>
+          <Picture
+            src={w.coverPhoto.src}
+            alt={w.coverPhoto.alt[lang]}
+            formats={['avif', 'webp']}
+            widths={[500, 800, 1100]}
+            sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw"
+            loading={i < 3 ? 'eager' : 'lazy'}
+          />
+          <h2>{w.title[lang]}</h2>
+          <p>{w.location[lang]} · {formatDate(lang, w.date)}</p>
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  <div class="cta">
+    <a class="button" href={routes.contact[lang]}>{t(lang, 'cta.contact')}</a>
+  </div>
+</BaseLayout>
+
+<style>
+  .intro {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: clamp(3rem, 8vw, 5rem) var(--gutter) clamp(2rem, 5vw, 3.5rem);
+    text-align: center;
+  }
+  .intro h1 { font-size: clamp(2rem, 4.5vw, 3.25rem); margin-bottom: 1.25rem; }
+  .intro p { margin: 0; line-height: 1.8; }
+
+  .weddings {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(2rem, 4vw, 3.5rem) clamp(1rem, 2vw, 2rem);
+    max-width: 90rem;
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+  .weddings a { display: block; text-decoration: none; text-align: center; }
+  .weddings :global(img) {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    transition: opacity .3s;
+  }
+  .weddings a:hover :global(img) { opacity: .88; }
+  .weddings h2 { font-size: clamp(1.3rem, 2vw, 1.6rem); margin: 1.1rem 0 .35rem; }
+  .weddings p { margin: 0; color: var(--muted); font-size: .9rem; letter-spacing: .04em; }
+  @media (max-width: 1100px) { .weddings { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) { .weddings { grid-template-columns: 1fr; } }
+
+  .cta { text-align: center; padding: clamp(3rem, 7vw, 5rem) var(--gutter); }
+</style>

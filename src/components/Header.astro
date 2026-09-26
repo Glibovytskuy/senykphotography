@@ -35,7 +35,7 @@ const switchHref = alternates[otherLang] ?? routes.home[otherLang];
         const href = routes[key][lang];
         return (
           <li>
-            <a href={href} aria-current={current === href ? 'page' : undefined}>
+            <a href={href} aria-current={current === href ? 'page' : key !== 'home' && current.startsWith(href) ? 'true' : undefined}>
               {t(lang, `nav.${key}` as any)}
             </a>
           </li>
@@ -99,7 +99,7 @@ const switchHref = alternates[otherLang] ?? routes.home[otherLang];
     color: var(--text); padding-bottom: .2rem;
     border-bottom: 1px solid transparent;
   }
-  nav a:hover, nav a[aria-current='page'] { color: var(--ink); border-bottom-color: var(--ink); }
+  nav a:hover, nav a[aria-current] { color: var(--ink); border-bottom-color: var(--ink); }
 
   .menu-toggle { display: none; }
 
