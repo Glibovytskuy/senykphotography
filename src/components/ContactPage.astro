@@ -1,0 +1,250 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getWedding } from '../lib/weddings';
+import { SITE } from '../config';
+import { alternatesFor, type Lang } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const copy = {
+  fr: {
+    title: 'Contact – Photographe de mariage à Paris | Senyk Photography',
+    description: 'Parlez-moi de votre mariage à Paris, en Île-de-France ou ailleurs : date, lieu, envies. Je vous réponds sous 48 heures.',
+    h1: 'Parlons de votre mariage',
+    intro: 'Racontez-moi votre projet : la date, le lieu, ce qui compte pour vous. Je vous réponds personnellement sous 48 heures.',
+    email: 'Email', phone: 'Téléphone',
+    fields: {
+      email: 'Email',
+      names: 'Vos prénoms',
+      date: 'Date du mariage',
+      location: 'Lieu du mariage',
+      message: 'Parlez-moi un peu de votre mariage',
+    },
+    required: 'champ obligatoire',
+    send: 'Envoyer',
+    sending: 'Envoi…',
+    sent: 'Merci ! Votre message est bien arrivé. Je vous réponds très vite.',
+    error: 'Le message n’a pas pu être envoyé. Réessayez ou écrivez-moi directement à',
+  },
+  en: {
+    title: 'Contact – Paris Wedding Photographer | Senyk Photography',
+    description: 'Tell me about your wedding in Paris, around France or abroad: the date, the venue, what matters to you. I reply within 48 hours.',
+    h1: 'Tell me about your wedding',
+    intro: 'Share your plans with me: the date, the venue, what matters most to you. I reply personally within 48 hours.',
+    email: 'Email', phone: 'Phone',
+    fields: {
+      email: 'Email',
+      names: 'Your names',
+      date: 'Wedding date',
+      location: 'Wedding location',
+      message: 'Let me know a little bit more about your wedding',
+    },
+    required: 'required',
+    send: 'Send',
+    sending: 'Sending…',
+    sent: 'Thank you! Your message has arrived. I’ll get back to you very soon.',
+    error: 'Your message could not be sent. Please try again or email me directly at',
+  },
+  uk: {
+    title: 'Контакти – весільний фотограф у Парижі | Senyk Photography',
+    description: 'Розкажіть про ваше весілля в Парижі, у Франції чи за кордоном: дата, локація, побажання. Відповідаю протягом 48 годин.',
+    h1: 'Розкажіть про ваше весілля',
+    intro: 'Поділіться планами: дата, місце, що для вас найважливіше. Я особисто відповім протягом 48 годин.',
+    email: 'Email', phone: 'Телефон',
+    fields: {
+      email: 'Email',
+      names: 'Ваші імена',
+      date: 'Дата весілля',
+      location: 'Локація весілля',
+      message: 'Розкажіть трохи більше про ваше весілля',
+    },
+    required: 'обов’язкове поле',
+    send: 'Надіслати',
+    sending: 'Надсилаю…',
+    sent: 'Дякую! Ваше повідомлення надійшло. Я скоро відповім.',
+    error: 'Не вдалося надіслати повідомлення. Спробуйте ще раз або напишіть мені на',
+  },
+}[lang];
+
+// Смужка чорно-білих фото вгорі сторінки
+const strip = [
+  ['mariage-paris-hotel-particulier', 'SENYK255.jpg'],
+  ['mariage-suisse-lac-de-thoune', 'AL59646.jpg'],
+  ['seance-mariee-pont-de-bir-hakeim', 'SENYK43.jpg'],
+  ['mariage-chateau-ile-de-france', '1H9A1354.jpg'],
+].flatMap(([slug, file]) => getWedding(slug)?.photos.filter((p) => p.file === file) ?? []);
+
+const inputs = [
+  { name: 'email', type: 'email', autocomplete: 'email' },
+  { name: 'names', type: 'text', autocomplete: 'name' },
+  { name: 'date', type: 'text', autocomplete: 'off' },
+  { name: 'location', type: 'text', autocomplete: 'off' },
+] as const;
+---
+<BaseLayout
+  lang={lang}
+  title={copy.title}
+  description={copy.description}
+  alternates={alternatesFor('contact')}
+>
+  <div class="strip" aria-hidden="true">
+    {strip.map((p) => (
+      <Picture src={p.src} alt="" formats={['avif', 'webp']} widths={[400, 700]} sizes="(max-width: 640px) 50vw, 25vw" />
+    ))}
+  </div>
+
+  <ul class="direct">
+    <li>{copy.email}: <a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+    <li>{copy.phone}: <a href={`tel:${SITE.phoneHref}`}>{SITE.phoneDisplay}</a></li>
+  </ul>
+
+  <section class="contact">
+    <h1>{copy.h1}</h1>
+    <p class="intro">{copy.intro}</p>
+
+    <form
+      method="post"
+      action="/api/contact"
+      data-sending={copy.sending}
+      data-sent={copy.sent}
+      data-error={`${copy.error} ${SITE.email}`}
+    >
+      <input type="hidden" name="lang" value={lang} />
+      {inputs.map((f) => (
+        <div class="field">
+          <input id={f.name} name={f.name} type={f.type} autocomplete={f.autocomplete} placeholder=" " required maxlength={f.name === 'location' ? 300 : 200} />
+          <label for={f.name}>{copy.fields[f.name]}<span aria-hidden="true">*</span><span class="sr-only"> ({copy.required})</span></label>
+        </div>
+      ))}
+      <div class="field">
+        <textarea id="message" name="message" rows="3" placeholder=" " required maxlength="5000"></textarea>
+        <label for="message">{copy.fields.message}<span aria-hidden="true">*</span><span class="sr-only"> ({copy.required})</span></label>
+      </div>
+
+      <!-- Пастка для спам-ботів: людям не видно -->
+      <div class="trap" aria-hidden="true">
+        <label>Website <input name="website" tabindex="-1" autocomplete="off" /></label>
+      </div>
+
+      <button class="button" type="submit">{copy.send}</button>
+      <p class="status" role="status" aria-live="polite" hidden></p>
+    </form>
+  </section>
+</BaseLayout>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('.contact form')!;
+  const status = form.querySelector<HTMLParagraphElement>('.status')!;
+  const button = form.querySelector<HTMLButtonElement>('button')!;
+  const label = button.textContent;
+
+  function show(kind: 'sent' | 'error') {
+    status.hidden = false;
+    status.dataset.kind = kind;
+    status.textContent = form.dataset[kind] ?? '';
+  }
+
+  // Результат, якщо форма надсилалась без JavaScript
+  const params = new URLSearchParams(location.search);
+  if (params.has('sent')) show('sent');
+  if (params.has('error')) show('error');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    button.disabled = true;
+    button.textContent = form.dataset.sending ?? '…';
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        headers: { accept: 'application/json' },
+        body: new FormData(form),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.error ?? res.status);
+      form.reset();
+      show('sent');
+    } catch {
+      show('error');
+    } finally {
+      button.disabled = false;
+      button.textContent = label;
+    }
+  });
+</script>
+
+<style>
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(.25rem, .6vw, .5rem);
+    padding: clamp(.5rem, 1.2vw, 1rem);
+  }
+  .strip :global(img) {
+    width: 100%;
+    height: clamp(9rem, 22vw, 20rem);
+    object-fit: cover;
+    filter: grayscale(1);
+  }
+  @media (max-width: 640px) {
+    .strip { grid-template-columns: repeat(2, 1fr); }
+    .strip :global(picture:nth-child(n + 3)) { display: none; }
+  }
+
+  .direct {
+    list-style: none; margin: 0;
+    display: flex; justify-content: space-around; flex-wrap: wrap; gap: .75rem 2rem;
+    padding: 1.5rem var(--gutter);
+    border-bottom: 1px solid var(--hairline);
+    font-family: var(--serif); font-size: clamp(1rem, 1.6vw, 1.25rem); color: var(--text);
+  }
+  .direct a { text-decoration: none; }
+  .direct a:hover { color: var(--ink); text-decoration: underline; }
+
+  .contact {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: clamp(3rem, 7vw, 5rem) var(--gutter) clamp(4rem, 8vw, 6rem);
+    text-align: center;
+  }
+  .contact h1 { font-size: clamp(2rem, 4.5vw, 3.25rem); margin-bottom: 1.25rem; }
+  .intro { margin: 0 auto 2.5rem; max-width: var(--measure); line-height: 1.8; }
+
+  form { text-align: left; }
+
+  /* Поле з лінією знизу; підпис стоїть у полі й піднімається, коли вводите текст */
+  .field { position: relative; border-bottom: 1px solid var(--hairline); margin-bottom: .5rem; }
+  .field:focus-within { border-bottom-color: var(--ink); }
+  .field input, .field textarea {
+    display: block; width: 100%;
+    padding: 2.1rem 1rem .75rem;
+    border: 0; background: transparent; outline: none;
+    font: inherit; font-size: 1.05rem; color: var(--ink);
+    resize: vertical;
+  }
+  .field label {
+    position: absolute; left: 1rem; top: 1.45rem;
+    font-family: var(--serif); font-size: clamp(1.1rem, 1.8vw, 1.35rem); color: var(--muted);
+    pointer-events: none; transform-origin: left top;
+    transition: transform .2s, color .2s;
+  }
+  .field input:focus + label, .field input:not(:placeholder-shown) + label,
+  .field textarea:focus + label, .field textarea:not(:placeholder-shown) + label {
+    transform: translateY(-.95rem) scale(.7);
+    color: var(--zinc);
+  }
+
+  .trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  form .button {
+    display: block; margin: 3rem auto 0; min-width: 14rem;
+    background: none; cursor: pointer; font-size: 1.05rem;
+  }
+  form .button:disabled { opacity: .6; cursor: wait; }
+
+  .status { margin: 1.75rem 0 0; text-align: center; line-height: 1.7; }
+  .status[data-kind='error'] { color: #9b2c2c; }
+  .status[data-kind='sent'] { color: var(--ink); font-family: var(--serif); font-size: 1.2rem; }
+</style>
