@@ -1,7 +1,10 @@
 ---
-import { Picture } from 'astro:assets';
+import { Picture, getImage } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import hero from '../assets/hero.jpg';
+// Головне фото. Щоб замінити — змініть шлях; heroFocus задає, яку частину
+// вертикального кадру показати в широкому банері (0% — верх, 100% — низ).
+import hero from '../content/weddings/seance-couple-chateau-de-chantilly/1H9A0087.jpg';
+const heroFocus = '68%';
 import { homeGallery } from '../data/homeGallery';
 import { getWedding, weddingPath } from '../lib/weddings';
 import { t, routes, alternatesFor, type Lang } from '../i18n/ui';
@@ -14,7 +17,7 @@ const copy = {
     title: 'Photographe de mariage à Paris | Senyk Photography',
     description: 'Photographe de mariage à Paris et en Île-de-France. Reportages élégants et naturels dans les châteaux, hôtels et lieux emblématiques de la capitale.',
     h1: 'Photographe de mariage à Paris',
-    heroAlt: 'Mariés devant un château près de Paris',
+    heroAlt: 'Couple et voiture ancienne devant le château de Chantilly, près de Paris',
     intro: [
       'Je photographie les mariages à Paris, en Île-de-France et partout en France : cérémonies dans les châteaux, réceptions dans les hôtels particuliers, séances au lever du soleil sur les quais de Seine.',
       'Mon approche mêle portraits soignés et reportage discret, pour que vos images racontent la journée telle que vous l’avez vécue.',
@@ -24,7 +27,7 @@ const copy = {
     title: 'Paris Wedding Photographer | Senyk Photography',
     description: 'Wedding photographer based in Paris, France. Elegant, natural wedding and elopement photography at châteaux, hotels and iconic Paris locations.',
     h1: 'Wedding photographer in Paris',
-    heroAlt: 'Bride and groom in front of a château near Paris',
+    heroAlt: 'Couple with a vintage car in front of the Château de Chantilly near Paris',
     intro: [
       'I photograph weddings and elopements in Paris, across Île-de-France and throughout France: château ceremonies, receptions in private mansions, sunrise portraits along the Seine.',
       'My approach combines refined portraits with quiet documentary coverage, so your photos tell the day the way you lived it.',
@@ -34,7 +37,7 @@ const copy = {
     title: 'Весільний фотограф у Парижі | Senyk Photography',
     description: 'Весільний фотограф у Парижі та Іль-де-Франс. Елегантні й природні весільні зйомки в шато, готелях і найвідоміших місцях французької столиці.',
     h1: 'Весільний фотограф у Парижі',
-    heroAlt: 'Наречені перед шато неподалік Парижа',
+    heroAlt: 'Пара й ретроавтомобіль перед замком Шантійї під Парижем',
     intro: [
       'Я знімаю весілля в Парижі, Іль-де-Франс і по всій Франції: церемонії в шато, банкети в особняках, світанкові фотосесії на набережних Сени.',
       'Мій підхід поєднує вишукані портрети та ненав’язливий репортаж, щоб фото розповідали ваш день таким, яким ви його прожили.',
@@ -46,21 +49,23 @@ const gallery = homeGallery.flatMap(({ wedding, file }) => {
   const photo = getWedding(wedding)?.photos.find((p) => p.file === file);
   return photo ? [{ ...photo, href: weddingPath(lang, wedding) }] : [];
 });
+const og = await getImage({ src: hero, width: 1200, format: 'jpg' });
+const heroWidths = [800, 1400, 2000, 2400].filter((w) => w < hero.width).concat(hero.width);
 ---
 <BaseLayout
   lang={lang}
   title={copy.title}
   description={copy.description}
   alternates={alternatesFor('home')}
-  ogImage={hero.src}
+  ogImage={og.src}
   businessSchema
 >
-  <div class="hero">
+  <div class="hero" style={`--focus: ${heroFocus}`}>
     <Picture
       src={hero}
       alt={copy.heroAlt}
       formats={['avif', 'webp']}
-      widths={[800, 1400, 2000, 2400]}
+      widths={heroWidths}
       sizes="100vw"
       loading="eager"
       fetchpriority="high"
@@ -98,6 +103,7 @@ const gallery = homeGallery.flatMap(({ wedding, file }) => {
     height: min(82vh, 56vw);
     min-height: 22rem;
     object-fit: cover;
+    object-position: center var(--focus);
   }
 
   .intro {

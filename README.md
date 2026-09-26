@@ -13,7 +13,7 @@
 ## Де що міняти
 
 - `src/config.ts` — назва бренду, email, телефон, WhatsApp, Instagram
-- `src/assets/hero.jpg` — головне фото
+- `src/components/HomePage.astro` (угорі файлу) — яке фото стоїть у великому банері на головній
 - `src/content/weddings/<назва>/` — фото весілля; назва папки = адреса сторінки `/portfolio/<назва>/`
 - `src/data/weddings.ts` — назва, локація, дата, історія, обкладинка, порядок і alt-тексти фото кожного весілля
 - `src/data/homeGallery.ts` — які фото з весіль показати на головній
