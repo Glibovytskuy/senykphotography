@@ -4,7 +4,7 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   // Тимчасово тестовий домен. Коли купите справжній — замініть тут.
-  site: 'https://senyk-photography.pages.dev',
+  site: 'https://senykphotography.glibbogd.workers.dev',
   trailingSlash: 'always',
   i18n: {
     defaultLocale: 'fr',
