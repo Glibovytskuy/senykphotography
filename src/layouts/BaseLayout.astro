@@ -26,7 +26,7 @@ const site = Astro.site!;
 const canonical = new URL(Astro.url.pathname, site).href;
 const abs = (path: string) => new URL(path, site).href;
 const ogImageUrl = ogImage ? abs(ogImage) : undefined;
-const locales: Record<Lang, string> = { fr: 'fr_FR', en: 'en_US' };
+const locales: Record<Lang, string> = { fr: 'fr_FR', en: 'en_US', uk: 'uk_UA' };
 
 const schema = businessSchema && {
   '@context': 'https://schema.org',

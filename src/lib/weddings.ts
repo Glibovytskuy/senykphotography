@@ -55,8 +55,10 @@ export function weddingPath(lang: Lang, slug: string) {
   return `${routes.portfolio[lang]}${slug}/`;
 }
 
+const dateLocales: Record<Lang, string> = { fr: 'fr-FR', en: 'en-GB', uk: 'uk-UA' };
+
 export function formatDate(lang: Lang, date: string) {
   const [y, m] = date.split('-').map(Number);
-  return new Intl.DateTimeFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+  return new Intl.DateTimeFormat(dateLocales[lang], { month: 'long', year: 'numeric', timeZone: 'UTC' })
     .format(new Date(Date.UTC(y, (m ?? 1) - 1, 1)));
 }

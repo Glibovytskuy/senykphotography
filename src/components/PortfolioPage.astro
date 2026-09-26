@@ -20,6 +20,12 @@ const copy = {
     h1: 'Portfolio',
     intro: 'Every wedding tells a different story. Here are some of the ones I have been lucky enough to photograph, in Paris and beyond.',
   },
+  uk: {
+    title: 'Портфоліо – весілля в Парижі та Франції | Senyk Photography',
+    description: 'Весільні історії з Парижа, шато Іль-де-Франс і закордонних локацій, зняті Senyk Photography.',
+    h1: 'Портфоліо',
+    intro: 'Кожне весілля — це окрема історія. Ось деякі з тих, які мені пощастило зняти в Парижі та за його межами.',
+  },
 }[lang];
 
 const og = allWeddings[0] && (await getImage({ src: allWeddings[0].coverPhoto.src, width: 1200, format: 'jpg' }));

@@ -8,12 +8,12 @@ export default defineConfig({
   trailingSlash: 'always',
   i18n: {
     defaultLocale: 'fr',
-    locales: ['fr', 'en'],
+    locales: ['fr', 'en', 'uk'],
     routing: { prefixDefaultLocale: false },
   },
   integrations: [
     sitemap({
-      i18n: { defaultLocale: 'fr', locales: { fr: 'fr-FR', en: 'en-US' } },
+      i18n: { defaultLocale: 'fr', locales: { fr: 'fr-FR', en: 'en-US', uk: 'uk-UA' } },
     }),
   ],
 });

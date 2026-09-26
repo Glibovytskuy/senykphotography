@@ -1,5 +1,7 @@
 @import '@fontsource-variable/bodoni-moda';
 @import '@fontsource-variable/jost';
+/* У Bodoni немає кирилиці: українські літери бере Playfair Display */
+@import '@fontsource-variable/playfair-display';
 
 :root {
   --paper: #ffffff;
@@ -9,7 +11,7 @@
   --zinc: #5e6b73;         /* акцент: паризькі цинкові дахи */
   --hairline: #e6e6e6;
 
-  --serif: 'Bodoni Moda Variable', 'Didot', 'Bodoni 72', Georgia, serif;
+  --serif: 'Bodoni Moda Variable', 'Playfair Display Variable', 'Didot', 'Bodoni 72', Georgia, serif;
   --sans: 'Jost Variable', 'Futura', 'Century Gothic', system-ui, sans-serif;
 
   --measure: 38rem;

@@ -1,15 +1,14 @@
 ---
 import Icon from './Icon.astro';
 import { SITE } from '../config';
-import { t, routes, languages, type Lang, type RouteKey } from '../i18n/ui';
+import { t, routes, languages, langLabels, type Lang, type RouteKey } from '../i18n/ui';
 
 interface Props { lang: Lang; alternates: Partial<Record<Lang, string>> }
 const { lang, alternates } = Astro.props;
 
 const nav: RouteKey[] = ['home', 'portfolio', 'about', 'contact'];
 const current = Astro.url.pathname;
-const otherLang = (Object.keys(languages) as Lang[]).find((l) => l !== lang)!;
-const switchHref = alternates[otherLang] ?? routes.home[otherLang];
+const langs = Object.keys(languages) as Lang[];
 ---
 <header class="site-header">
   <div class="topbar">
@@ -18,9 +17,20 @@ const switchHref = alternates[otherLang] ?? routes.home[otherLang];
       <a href={`tel:${SITE.phoneHref}`} aria-label={SITE.phoneDisplay}><Icon name="phone" size={16} /><span>{SITE.phoneDisplay}</span></a>
       <a href={`https://wa.me/${SITE.whatsapp}`} aria-label="WhatsApp"><Icon name="whatsapp" size={17} /></a>
     </div>
-    <a class="lang-switch" href={switchHref} hreflang={otherLang} lang={otherLang}>
-      {otherLang === 'en' ? 'English' : 'Français'}
-    </a>
+    <ul class="lang-switch">
+      {langs.map((l) => (
+        <li>
+          <a
+            href={alternates[l] ?? routes.home[l]}
+            hreflang={l}
+            lang={l}
+            title={languages[l]}
+            aria-label={languages[l]}
+            aria-current={l === lang ? 'true' : undefined}
+          >{langLabels[l]}</a>
+        </li>
+      ))}
+    </ul>
   </div>
 
   <a class="wordmark" href={routes.home[lang]} aria-label={SITE.brand}>
@@ -65,7 +75,8 @@ const switchHref = alternates[otherLang] ?? routes.home[otherLang];
   .topbar-contacts { display: flex; gap: 1.5rem; align-items: center; }
   .topbar a { display: inline-flex; align-items: center; gap: .45rem; text-decoration: none; }
   .topbar a:hover { color: var(--ink); }
-  .lang-switch { letter-spacing: .04em; }
+  .lang-switch { list-style: none; margin: 0; padding: 0; display: flex; gap: .9rem; letter-spacing: .08em; }
+  .lang-switch a[aria-current] { color: var(--ink); text-decoration: underline; text-underline-offset: .3em; }
 
   .wordmark {
     display: flex; flex-direction: column; align-items: center;

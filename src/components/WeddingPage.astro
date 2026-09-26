@@ -3,12 +3,14 @@ import { Picture, getImage } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Lightbox from './Lightbox.astro';
 import { allWeddings, weddingPath, formatDate, type LoadedWedding } from '../lib/weddings';
-import { t, routes, type Lang } from '../i18n/ui';
+import { t, routes, languages, type Lang } from '../i18n/ui';
+
+const langs = Object.keys(languages) as Lang[];
 
 interface Props { lang: Lang; wedding: LoadedWedding }
 const { lang, wedding: w } = Astro.props;
 
-const suffix = { fr: 'Photographe de mariage Paris', en: 'Paris Wedding Photographer' }[lang];
+const suffix = { fr: 'Photographe de mariage Paris', en: 'Paris Wedding Photographer', uk: 'Весільний фотограф у Парижі' }[lang];
 const title = `${w.title[lang]} | ${suffix}`;
 const firstParagraph = w.story[lang][0] ?? w.title[lang];
 const description = firstParagraph.length <= 160
@@ -42,7 +44,7 @@ const schema = {
   lang={lang}
   title={title}
   description={description}
-  alternates={{ fr: weddingPath('fr', w.slug), en: weddingPath('en', w.slug) }}
+  alternates={Object.fromEntries(langs.map((l) => [l, weddingPath(l, w.slug)]))}
   ogImage={og.src}
   schema={schema}
 >
