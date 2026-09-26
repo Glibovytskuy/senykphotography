@@ -55,7 +55,7 @@ const schema = {
       {w.story[lang].map((p) => <p>{p}</p>)}
     </header>
 
-    <div class="photos">
+    <div class="photos" style={`--n: ${Math.min(3, photos.length)}`}>
       {photos.map((p, i) => (
         <a href={p.full.src} data-lightbox data-alt={p.alt[lang]}>
           <Picture
@@ -96,16 +96,18 @@ const schema = {
 
   /* Колонки замість сітки: портретні та горизонтальні фото без обрізання */
   .photos {
-    columns: 3;
+    /* Для 1–2 фото менше колонок і вужча галерея по центру */
+    --cols: var(--n);
+    columns: var(--cols);
     column-gap: clamp(.5rem, 1vw, 1rem);
-    max-width: 90rem;
+    max-width: calc(var(--cols) * 30rem);
     margin: 0 auto;
     padding: 0 var(--gutter);
   }
   .photos a { display: block; margin-bottom: clamp(.5rem, 1vw, 1rem); break-inside: avoid; cursor: zoom-in; }
   .photos :global(img) { width: 100%; }
-  @media (max-width: 1100px) { .photos { columns: 2; } }
-  @media (max-width: 640px) { .photos { columns: 1; } }
+  @media (max-width: 1100px) { .photos { --cols: min(var(--n), 2); } }
+  @media (max-width: 640px) { .photos { --cols: 1; } }
 
   .more {
     display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
